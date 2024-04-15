@@ -3,9 +3,7 @@ package Try;
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -91,14 +89,13 @@ public class Main extends Application {
         Rect rect2 = new Rect(srcPoints[2], srcPoints[3]);
         Rect rect3 = new Rect(srcPoints[0], srcPoints[2]);
         Rect rect4 = new Rect(srcPoints[1], srcPoints[3]);
-        int width = (rect1.width+rect2.width)/2;
-        int height = (rect3.height+rect4.height)/2;
-        double ratio = (width>height ? (double)width/(double)height : (double)height/(double)width);
+        double width = (double)(rect1.width+rect2.width)/2;
+        double height = (double)(rect3.height+rect4.height)/2;
+        double ratio = (width>height ? width/height : height/width);
         boolean horizontal = width>height;
         
         System.out.println(ratio);
         
-        System.out.println();
         points.stream().forEach(System.out::println);
         Mat sourceImage = Imgcodecs.imread("imgs//example.jpg");
 
@@ -109,7 +106,7 @@ public class Main extends Application {
         	dst = new MatOfPoint2f(new Point[]{new Point(0, 0), new Point(250*ratio, 0), new Point(0, 250), new Point(250*ratio, 250)});
         }
         else {
-        	dst = new MatOfPoint2f(new Point[]{new Point(0, 0), new Point(250, 0), new Point(0, 250*ratio), new Point(250*ratio, 250*ratio)});
+        	dst = new MatOfPoint2f(new Point[]{new Point(0, 0), new Point(250, 0), new Point(0, 250*ratio), new Point(250, 250*ratio)});
         }
         
         Mat homographyMatrix = Imgproc.getPerspectiveTransform(src, dst);
