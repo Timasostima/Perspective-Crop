@@ -62,8 +62,8 @@ public class Main extends Application {
             		try {
             		    ImageIO.write(result, "jpg", new File("imgs//result.jpg"));
             		    BorderPane root2 = new BorderPane();
-            		    root2.setCenter(imageView);
             		    imageView.setImage(SwingFXUtils.toFXImage(result, null));
+            		    root2.setCenter(imageView);
             		    int sceneWidth = result.getWidth()-1;
             	        int sceneHeight = result.getHeight()-1;
             		    Scene scene2 = new Scene(root2, sceneWidth,sceneHeight);
@@ -91,7 +91,7 @@ public class Main extends Application {
         Rect rect4 = new Rect(srcPoints[1], srcPoints[3]);
         double width = (double)(rect1.width+rect2.width)/2;
         double height = (double)(rect3.height+rect4.height)/2;
-        double ratio = (width>height ? width/height : height/width);
+        double ratio = (width<height ? width/height : height/width);
         boolean horizontal = width>height;
         
         System.out.println(ratio);
@@ -102,23 +102,23 @@ public class Main extends Application {
 
         MatOfPoint2f src = new MatOfPoint2f(srcPoints);
         MatOfPoint2f dst;
-        if (horizontal) {
-        	dst = new MatOfPoint2f(new Point[]{new Point(0, 0), new Point(250*ratio, 0), new Point(0, 250), new Point(250*ratio, 250)});
+        if (!horizontal) {
+        	dst = new MatOfPoint2f(new Point[]{new Point(0, 0), new Point(700*ratio, 0), new Point(0, 700), new Point(700*ratio, 700)});
         }
         else {
-        	dst = new MatOfPoint2f(new Point[]{new Point(0, 0), new Point(250, 0), new Point(0, 250*ratio), new Point(250, 250*ratio)});
+        	dst = new MatOfPoint2f(new Point[]{new Point(0, 0), new Point(700, 0), new Point(0, 700*ratio), new Point(700, 700*ratio)});
         }
         
         Mat homographyMatrix = Imgproc.getPerspectiveTransform(src, dst);
         
         Mat correctedImage = new Mat();
-        if (horizontal) {
-        	Imgproc.warpPerspective(sourceImage, correctedImage, homographyMatrix, new Size(250*ratio, 250));
+        if (!horizontal) {
+        	Imgproc.warpPerspective(sourceImage, correctedImage, homographyMatrix, new Size(700*ratio, 700));
         	
         }
         else {
-        	Imgproc.warpPerspective(sourceImage, correctedImage, homographyMatrix, new Size(250, 250*ratio));
-        	
+        	Imgproc.warpPerspective(sourceImage, correctedImage, homographyMatrix, new Size(700, 700*ratio));
+
         }
 
         return correctedImage;
