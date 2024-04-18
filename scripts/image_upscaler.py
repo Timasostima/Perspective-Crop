@@ -16,12 +16,23 @@ def get_low_res_img():
   low_res_img = Image.open("C:/Users/Serious Tim/eclipse-workspace/Perspective-Crop/imgs/result.jpg").convert("RGB")
   width, height = low_res_img.size
   ratio = height/width if width>height else width/height
-  # print(width)
-  # print(height)
-  # print(ratio)
-  horizontal = True if width > height else False
+  finalW = width
+  finalH = height
+  
+  if (width>height):
+    if (width>300):   
+      finalW = 300
+      finalH = int(300*ratio)
+  else:
+    if (height>300):   
+      finalH = 300
+      finalW = int(300*ratio)
+    
+  
+  # horizontal = True if width > height else False
   # print(horizontal)
-  shape = (300, int(300*ratio)) if horizontal else (int(300*ratio), 300)
+  # shape = (300, int(300*ratio)) if horizontal else (int(300*ratio), 300)
+  shape = (finalW, finalH)
   low_res_img = low_res_img.resize(shape)
   return low_res_img
 
