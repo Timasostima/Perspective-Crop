@@ -13,14 +13,17 @@ import javafx.stage.Stage;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.dnn.*;
 
 public class Main extends Application {
 
@@ -29,6 +32,7 @@ public class Main extends Application {
     private static ImageView imageView;
     private static BufferedImage originalImage;
     BufferedImage result;
+    BufferedImage resultIA;
     
 
     @Override
@@ -61,16 +65,35 @@ public class Main extends Application {
                 	result = Mat2BufferedImage(matImg);
             		try {
             		    ImageIO.write(result, "jpg", new File("imgs//result.jpg"));
+            		    
+            		    
+            		    final String Script_Path = "C:\\Users\\Serious Tim\\eclipse-workspace\\Perspective-Crop\\scripts\\image_upscaler.py";
+            		    ProcessBuilder Process_Builder = new ProcessBuilder("python", Script_Path).inheritIO();
+
+            		    Process Demo_Process = Process_Builder.start();
+            		    Demo_Process.waitFor();
+            		    
+            		    BufferedReader Buffered_Reader = new BufferedReader(new InputStreamReader(Demo_Process.getInputStream()));
+            		    String Output_line = "";
+
+            		    while ((Output_line = Buffered_Reader.readLine()) != null) {
+            		      System.out.println(Output_line);
+            		    }
+            		    
+            		    resultIA = ImageIO.read(new File("imgs//resultIA.jpg"));
             		    BorderPane root2 = new BorderPane();
-            		    imageView.setImage(SwingFXUtils.toFXImage(result, null));
+            		    imageView.setImage(SwingFXUtils.toFXImage(resultIA, null));
             		    root2.setCenter(imageView);
-            		    int sceneWidth = result.getWidth()-1;
-            	        int sceneHeight = result.getHeight()-1;
+            		    int sceneWidth = resultIA.getWidth()-1;
+            	        int sceneHeight = resultIA.getHeight()-1;
             		    Scene scene2 = new Scene(root2, sceneWidth,sceneHeight);
             		    primaryStage.setScene(scene2);
             		} catch (IOException e) {
             		    e.printStackTrace();
-            		}
+            		} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                 }
             }
         });
@@ -103,21 +126,25 @@ public class Main extends Application {
         MatOfPoint2f src = new MatOfPoint2f(srcPoints);
         MatOfPoint2f dst;
         if (!horizontal) {
-        	dst = new MatOfPoint2f(new Point[]{new Point(0, 0), new Point(700*ratio, 0), new Point(0, 700), new Point(700*ratio, 700)});
+//        	dst = new MatOfPoint2f(new Point[]{new Point(0, 0), new Point(700*ratio, 0), new Point(0, 700), new Point(700*ratio, 700)});
+        	dst = new MatOfPoint2f(new Point[]{new Point(0, 0), new Point(width, 0), new Point(0, height), new Point(width, height)});
         }
         else {
-        	dst = new MatOfPoint2f(new Point[]{new Point(0, 0), new Point(700, 0), new Point(0, 700*ratio), new Point(700, 700*ratio)});
+//        	dst = new MatOfPoint2f(new Point[]{new Point(0, 0), new Point(700, 0), new Point(0, 700*ratio), new Point(700, 700*ratio)});
+        	dst = new MatOfPoint2f(new Point[]{new Point(0, 0), new Point(width, 0), new Point(0, height), new Point(width, height)});
         }
         
         Mat homographyMatrix = Imgproc.getPerspectiveTransform(src, dst);
         
         Mat correctedImage = new Mat();
         if (!horizontal) {
-        	Imgproc.warpPerspective(sourceImage, correctedImage, homographyMatrix, new Size(700*ratio, 700));
+//        	Imgproc.warpPerspective(sourceImage, correctedImage, homographyMatrix, new Size(700*ratio, 700));
+        	Imgproc.warpPerspective(sourceImage, correctedImage, homographyMatrix, new Size(width, height));
         	
         }
         else {
-        	Imgproc.warpPerspective(sourceImage, correctedImage, homographyMatrix, new Size(700, 700*ratio));
+//        	Imgproc.warpPerspective(sourceImage, correctedImage, homographyMatrix, new Size(700, 700*ratio));
+        	Imgproc.warpPerspective(sourceImage, correctedImage, homographyMatrix, new Size(width, height));
 
         }
 
